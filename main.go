@@ -57,5 +57,5 @@ func main() {
 	router.GET("/job/:id", getJob)
 	router.GET("/jobs", getJobs)
 
-	router.Run("localhost:8080")
+	router.Run("0.0.0.0:8080")
 }
