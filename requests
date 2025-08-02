@@ -1,4 +1,0 @@
-
-curl -v -XPOST -H "Content-Length: 0" -H "Ocp-Apim-Subscription-Key: 0c612cf0d4f948088b2f951be92b614d" https://policy-testing.azure-api.net/api/v1/job/create
-curl -H "Ocp-Apim-Subscription-Key: 0c612cf0d4f948088b2f951be92b614d" https://policy-testing.azure-api.net/api/v1/jobs
-curl -H "Ocp-Apim-Subscription-Key: 0c612cf0d4f948088b2f951be92b614d" https://policy-testing.azure-api.net/api/v1/job/1816653737811934798
