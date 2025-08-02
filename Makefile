@@ -5,7 +5,7 @@ VERSION=v0.0.3
 
 .PHONY: all arm64 amd64 client
 
-all: arm64 amd64 client
+all: server-arm64 server-amd64 client
 push: parm64 pamd64
 
 
