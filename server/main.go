@@ -4,15 +4,17 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Job struct {
-	ID string `json:"id"`
+	ID     string `json:"id"`
+	Status string `json:"status"`
 }
 
-var jobs = []Job{}
+var jobs = []*Job{}
 
 /*
 create jobs
@@ -43,12 +45,19 @@ func getJob(c *gin.Context) {
 	}
 }
 
+func work(j *Job) {
+	n := rand.Intn(30)
+	time.Sleep(time.Duration(n) * time.Second)
+	j.Status = "complete"
+}
+
 func createJob(c *gin.Context) {
-	var job Job
 	uid := strconv.Itoa(uuid())
-	jobs = append(jobs, Job{ID: uid})
+	job := &Job{ID: uid, Status: "pending"}
+	jobs = append(jobs, job)
+	go work(job)
 	c.Header("operation-location", "http://10.10.10.10/my/long/path/job/"+uid)
-	c.JSON(http.StatusCreated, job)
+	c.JSON(http.StatusCreated, *job)
 }
 
 func main() {

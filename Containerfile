@@ -2,9 +2,9 @@
 
 FROM golang:1.24.5
 
-COPY go.mod go.sum ./
+COPY server/go.mod server/go.sum ./
 RUN go mod download
-COPY *.go ./
+COPY server/*.go ./
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go build -o /apim-response-tester
 
