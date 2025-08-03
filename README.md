@@ -1,4 +1,4 @@
-# apim-responser-tester
+# apim-response-tester
 with qemu based lima, `qemu-user-static` package required for cross platform target compilation
 login
 ```
