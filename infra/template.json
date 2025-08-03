@@ -40,7 +40,8 @@
                             ],
                             "environmentVariables": [
                                 {
-                                    "ENDPOINT_FQDN": "[parameters('endpointFqdn')]"
+                                    "name": "ENDPOINT_FQDN",
+                                    "value": "[parameters('endpointFqdn')]"
                                 }
                             ],
                             "resources": {

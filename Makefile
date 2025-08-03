@@ -8,9 +8,9 @@ all: server-arm64 server-amd64 client
 push: parm64 pamd64
 
 
-#client:
-#	GOOS=linux GOARCH=arm64 go build -o bin/api-response-tester-arm64 ./client
-#	GOOS=linux GOARCH=amd64 go build -o bin/api-response-tester-amd64 ./client
+client:
+	GOOS=linux GOARCH=arm64 go build -o bin/api-response-tester-arm64 ./client
+	GOOS=linux GOARCH=amd64 go build -o bin/api-response-tester-amd64 ./client
 
 
 server-arm64:
