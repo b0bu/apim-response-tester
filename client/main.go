@@ -2,18 +2,16 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
-	"time"
+	"strings"
 )
 
 type Client struct {
 	URL     string
 	Headers map[string]string
-	Token   string
 	Method  string
 }
 
@@ -40,6 +38,7 @@ func (c Client) Go(n int) {
 
 	for n > 0 {
 		resp, err := httpClient.Do(req)
+		log.Printf("job %v created", n)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -68,12 +67,10 @@ func (c Client) Poll(r *http.Response) {
 			log.Fatalln(err)
 		}
 
-		fmt.Printf("id: %v status: %v", p.ID, p.Status)
+		log.Printf("id: %v status: %v", p.ID, p.Status)
 		if p.Status == "complete" {
 			return
 		}
-
-		time.Sleep(3 * time.Second)
 	}
 }
 
@@ -83,14 +80,13 @@ func getToken() string {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	return string(bytes)
+	return strings.TrimRight(string(bytes), "\n")
 }
 
 func newClient(url, method string) Client {
 	return Client{
 		url,
 		map[string]string{"Ocp-Apim-Subscription-Key": getToken(), "Content-Length": "0"},
-		getToken(),
 		method,
 	}
 }
@@ -101,6 +97,6 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	c := newClient("https://policy-testing.azure-api.net/api/v1/job/create", "POST")
+	c := newClient("https://policy-testing.azure-api.net/api/v1/job/create", http.MethodPost)
 	c.Go(numJobs)
 }
