@@ -3,6 +3,7 @@ package main
 import (
 	"math/rand"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -55,8 +56,15 @@ func createJob(c *gin.Context) {
 	uid := strconv.Itoa(uuid())
 	job := &Job{ID: uid, Status: "pending"}
 	jobs = append(jobs, job)
+
+	endpoint := os.Getenv("ENDPOINT_FQDN")
+
+	if endpoint == "" {
+		endpoint = "localhost"
+	}
+
 	go work(job)
-	c.Header("operation-location", "http://10.10.10.10/my/long/path/job/"+uid)
+	c.Header("operation-location", "http://"+endpoint+":8080/job/"+uid)
 	c.JSON(http.StatusCreated, *job)
 }
 
