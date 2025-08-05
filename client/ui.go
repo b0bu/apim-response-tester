@@ -2,9 +2,7 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"os"
-	"time"
 )
 
 type ANSICodes struct {
@@ -22,33 +20,32 @@ func ctrlCodes() ANSICodes {
 }
 
 type Cursor struct {
-	X int
-	Y int
+	X     int
+	Y     int
+	Msg   string
+	Style byte
 }
 
-func newCursor(YPos int) Cursor {
+func newCursor(YPos int, msg string, style byte) Cursor {
 	return Cursor{
-		X: 0,
-		Y: YPos,
+		X:     0,
+		Y:     YPos,
+		Msg:   msg,
+		Style: style,
 	}
 }
 
-const message string = "pending "
-
-func (c *Cursor) write(t byte) {
-	n := rand.Intn(5)
-	fmt.Print(message)
-	for range n {
-		time.Sleep(time.Duration(1) * time.Second)
-		c.pos()
-		fmt.Print(string(t))
-		c.X++
-	}
+func (c *Cursor) write() {
+	c.pos(0)
+	fmt.Print(c.Msg)
+	c.pos(len(c.Msg)) // print after the message
+	fmt.Print(string(c.Style))
+	c.X++
 	fmt.Println()
 }
 
-func (c Cursor) pos() {
-	row := fmt.Appendf([]byte{}, "\033[%v;1H\033[%vC", c.Y, len(message)+c.X)
+func (c Cursor) pos(offset int) {
+	row := fmt.Appendf([]byte{}, "\033[%v;1H\033[%vC", c.Y, offset+c.X)
 	os.Stdout.Write(row)
 }
 
@@ -66,11 +63,15 @@ func returnCursor(c ANSICodes) {
 	os.Stdout.Write(c.ShowCursor)
 }
 
-func Progress(id int, c byte) {
+func Clear() {
 	control(hideCursor)
+}
 
-	pos := newCursor(id)
-	pos.write(c)
+func Return() {
+	control(returnCursor)
+}
 
-	defer control(returnCursor)
+func Progress(id int, message string) {
+	pos := newCursor(id, message, '.')
+	pos.write()
 }

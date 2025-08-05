@@ -2,11 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 type Client struct {
@@ -32,43 +34,50 @@ func (c Client) newRequest() *http.Request {
 	return req
 }
 
-func (c Client) Go(n int) {
+func (c Client) Go(njobs int) {
 	req := c.newRequest()
 	httpClient := http.Client{}
+	var wg sync.WaitGroup
 
-	for n > 0 {
+	Clear()
+
+	for i := 0; i <= njobs; {
+		wg.Add(1)
 		resp, err := httpClient.Do(req)
-		log.Printf("job %v created", n)
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		resp.Body.Close()
-
-		go c.Poll(resp)
-		n--
+		go func(id int, r *http.Response) {
+			c.Poll(id, r)
+			wg.Done()
+			defer resp.Body.Close()
+		}(i, resp)
+		i++
 	}
+
+	wg.Wait()
+	defer Return()
 }
 
-func (c Client) Poll(r *http.Response) {
+func (c Client) Poll(threadID int, r *http.Response) {
 	for {
 		resp, err := http.Get(r.Header.Get("Operation-Location"))
-
 		if err != nil {
 			log.Fatalln(err)
 		}
 
-		defer resp.Body.Close()
-
-		var p Payload
-
-		err = json.NewDecoder(resp.Body).Decode(&p)
+		var job Payload
+		err = json.NewDecoder(resp.Body).Decode(&job)
 		if err != nil {
 			log.Fatalln(err)
 		}
 
-		log.Printf("id: %v status: %v", p.ID, p.Status)
-		if p.Status == "complete" {
+		if err != nil {
+			log.Fatalln(err)
+		}
+		Progress(threadID, fmt.Sprintf("job id: %v status: %v", job.ID, job.Status))
+		if job.Status == "complete" {
+			Progress(threadID, fmt.Sprintf("job id: %v status: %v", job.ID, job.Status))
 			return
 		}
 	}
