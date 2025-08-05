@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "containerGroups_apim_response_tester_name": {
-            "value": null
+            "value": "apim-response-tester"
         },
         "endpointFqdn": {
             "value": "apim-response-tester.dmf6h7gqcrcef7b9.uksouth.azurecontainer.io"
