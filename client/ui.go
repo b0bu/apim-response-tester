@@ -36,16 +36,18 @@ func newCursor(YPos int, msg string, style byte) Cursor {
 }
 
 func (c *Cursor) write() {
-	c.pos(0)
+	c.positionWriter()
 	fmt.Print(c.Msg)
-	c.pos(len(c.Msg)) // print after the message
-	fmt.Print(string(c.Style))
-	c.X++
-	fmt.Println()
+	//c.pos(len(c.Msg)) // print after the message
+	//c.pos() // print after the message
+	//fmt.Print(string(c.Style))
+	//c.X++
+	//fmt.Println()
 }
 
-func (c Cursor) pos(offset int) {
-	row := fmt.Appendf([]byte{}, "\033[%v;1H\033[%vC", c.Y, offset+c.X)
+func (c Cursor) positionWriter() {
+	//row := fmt.Appendf([]byte{}, "\033[%v;1H\033[%vC", c.Y, offset+c.X)
+	row := fmt.Appendf([]byte{}, "\033[%v;1H\033[C", c.Y)
 	os.Stdout.Write(row)
 }
 
@@ -56,7 +58,7 @@ func control(fn func(ANSICodes)) {
 
 func hideCursor(c ANSICodes) {
 	os.Stdout.Write(c.HomeCursor)
-	os.Stdout.Write(c.HideCursor)
+	//os.Stdout.Write(c.HideCursor)
 }
 
 func returnCursor(c ANSICodes) {

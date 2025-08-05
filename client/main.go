@@ -41,7 +41,7 @@ func (c Client) Go(njobs int) {
 
 	Clear()
 
-	for i := 0; i <= njobs; {
+	for i := 1; i <= njobs; {
 		wg.Add(1)
 		resp, err := httpClient.Do(req)
 		if err != nil {
@@ -100,7 +100,6 @@ func newClient(url, method string) Client {
 	}
 }
 
-// Progress(id, '.')
 func main() {
 	numJobs, err := strconv.Atoi(os.Args[1])
 	if err != nil {
