@@ -74,7 +74,3 @@ func Progress(id int, c byte) {
 
 	defer control(returnCursor)
 }
-
-func main() {
-	Progress(1, '.')
-}

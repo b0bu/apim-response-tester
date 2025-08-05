@@ -91,6 +91,7 @@ func newClient(url, method string) Client {
 	}
 }
 
+// Progress(id, '.')
 func main() {
 	numJobs, err := strconv.Atoi(os.Args[1])
 	if err != nil {
