@@ -34,14 +34,14 @@ func (c Client) newRequest() *http.Request {
 	return req
 }
 
-func (c Client) Go(njobs int) {
+func (c Client) Go() {
 	req := c.newRequest()
 	httpClient := http.Client{}
 	var wg sync.WaitGroup
 
 	Clear()
 
-	for i := 1; i <= njobs; {
+	for i := 1; i <= state.MaxLines; {
 		wg.Add(1)
 		resp, err := httpClient.Do(req)
 		if err != nil {
@@ -75,9 +75,9 @@ func (c Client) Poll(threadID int, r *http.Response) {
 		if err != nil {
 			log.Fatalln(err)
 		}
-		Progress(threadID, fmt.Sprintf("job id: %v status: %v", job.ID, job.Status))
+		Progress(threadID, fmt.Sprintf("job id: %v status: %v\n", job.ID, job.Status))
 		if job.Status == "complete" {
-			Progress(threadID, fmt.Sprintf("job id: %v status: %v", job.ID, job.Status))
+			Progress(threadID, fmt.Sprintf("job id: %v status: %v\n", job.ID, job.Status))
 			return
 		}
 	}
@@ -101,11 +101,12 @@ func newClient(url, method string) Client {
 }
 
 func main() {
-	numJobs, err := strconv.Atoi(os.Args[1])
+	drawlines, err := strconv.Atoi(os.Args[1])
 	if err != nil {
 		log.Fatalln(err)
 	}
+	state.MaxLines = drawlines
 
 	c := newClient("https://policy-testing.azure-api.net/api/v1/job/create", http.MethodPost)
-	c.Go(numJobs)
+	c.Go()
 }

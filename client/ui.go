@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"sync"
 )
 
 type ANSICodes struct {
@@ -47,7 +48,7 @@ func (c *Cursor) write() {
 
 func (c Cursor) positionWriter() {
 	//row := fmt.Appendf([]byte{}, "\033[%v;1H\033[%vC", c.Y, offset+c.X)
-	row := fmt.Appendf([]byte{}, "\033[%v;1H\033[C", c.Y)
+	row := fmt.Appendf([]byte{}, "\033[%v;1H", c.Y)
 	os.Stdout.Write(row)
 }
 
@@ -58,10 +59,11 @@ func control(fn func(ANSICodes)) {
 
 func hideCursor(c ANSICodes) {
 	os.Stdout.Write(c.HomeCursor)
-	//os.Stdout.Write(c.HideCursor)
+	os.Stdout.Write(c.HideCursor)
 }
 
 func returnCursor(c ANSICodes) {
+	os.Stdout.Write(c.HomeCursor)
 	os.Stdout.Write(c.ShowCursor)
 }
 
@@ -73,7 +75,17 @@ func Return() {
 	control(returnCursor)
 }
 
+var mu sync.Mutex
+
 func Progress(id int, message string) {
 	pos := newCursor(id, message, '.')
+	mu.Lock()
 	pos.write()
+	mu.Unlock()
 }
+
+type UIState struct {
+	MaxLines int
+}
+
+var state UIState
