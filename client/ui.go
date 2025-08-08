@@ -90,9 +90,8 @@ func Return() {
 	control(returnCursor)
 }
 
-var mu sync.Mutex
-
 func Progress(id int, p Payload) {
+	var mu sync.Mutex
 	pos := newCursor(id, p, '.')
 	mu.Lock()
 	pos.write()
