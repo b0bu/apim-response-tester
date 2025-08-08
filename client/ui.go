@@ -30,20 +30,18 @@ func ctrlCodes() ANSICodes {
 }
 
 type Cursor struct {
-	X      int
-	Y      int
-	JobID  string
-	Status string
-	Style  byte
+	Payload
+	X     int
+	Y     int
+	Style byte
 }
 
 func newCursor(YPos int, p Payload, style byte) Cursor {
 	return Cursor{
-		X:      0,
-		Y:      YPos,
-		JobID:  p.ID,
-		Status: p.Status,
-		Style:  style,
+		X:       0,
+		Y:       YPos,
+		Style:   style,
+		Payload: p,
 	}
 }
 
@@ -51,9 +49,9 @@ func (c *Cursor) write() {
 	c.positionWriter()
 	switch c.Status {
 	case "pending":
-		fmt.Print("id: " + c.JobID + " status: " + Blue + c.Status + Reset)
+		fmt.Print("id: " + c.ID + " status: " + Blue + c.Status + Reset)
 	case "complete":
-		fmt.Print("id: " + c.JobID + " status: " + Green + c.Status + Reset)
+		fmt.Print("id: " + c.ID + " status: " + Green + c.Status + Reset)
 	}
 	//c.pos(len(c.Msg)) // print after the message
 	//c.pos() // print after the message
@@ -80,6 +78,7 @@ func hideCursor(c ANSICodes) {
 
 func returnCursor(c ANSICodes) {
 	os.Stdout.Write(c.HomeCursor)
+	//fmt.Fprintf(os.Stdout, "\033[%vB", state.MaxLines)
 	os.Stdout.Write(c.ShowCursor)
 }
 
