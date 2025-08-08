@@ -6,6 +6,15 @@ import (
 	"sync"
 )
 
+const (
+	Reset = "\033[0m"
+	Green = "\033[32m"
+	Blue  = "\033[34m"
+	Home  = "\033[H\033[2J"
+	Hide  = "\033[?25l"
+	Show  = "\033[?25h"
+)
+
 type ANSICodes struct {
 	HomeCursor []byte
 	HideCursor []byte
@@ -14,31 +23,38 @@ type ANSICodes struct {
 
 func ctrlCodes() ANSICodes {
 	return ANSICodes{
-		HomeCursor: []byte("\033[H\033[2J"),
-		HideCursor: []byte("\033[?25l"),
-		ShowCursor: []byte("\033[?25h"),
+		HomeCursor: []byte(Home),
+		HideCursor: []byte(Hide),
+		ShowCursor: []byte(Show),
 	}
 }
 
 type Cursor struct {
-	X     int
-	Y     int
-	Msg   string
-	Style byte
+	X      int
+	Y      int
+	JobID  string
+	Status string
+	Style  byte
 }
 
-func newCursor(YPos int, msg string, style byte) Cursor {
+func newCursor(YPos int, p Payload, style byte) Cursor {
 	return Cursor{
-		X:     0,
-		Y:     YPos,
-		Msg:   msg,
-		Style: style,
+		X:      0,
+		Y:      YPos,
+		JobID:  p.ID,
+		Status: p.Status,
+		Style:  style,
 	}
 }
 
 func (c *Cursor) write() {
 	c.positionWriter()
-	fmt.Print(c.Msg)
+	switch c.Status {
+	case "pending":
+		fmt.Print("id: " + c.JobID + " status: " + Blue + c.Status + Reset)
+	case "complete":
+		fmt.Print("id: " + c.JobID + " status: " + Green + c.Status + Reset)
+	}
 	//c.pos(len(c.Msg)) // print after the message
 	//c.pos() // print after the message
 	//fmt.Print(string(c.Style))
@@ -77,8 +93,8 @@ func Return() {
 
 var mu sync.Mutex
 
-func Progress(id int, message string) {
-	pos := newCursor(id, message, '.')
+func Progress(id int, p Payload) {
+	pos := newCursor(id, p, '.')
 	mu.Lock()
 	pos.write()
 	mu.Unlock()

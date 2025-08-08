@@ -2,13 +2,13 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
 
 type Client struct {
@@ -36,7 +36,9 @@ func (c Client) newRequest() *http.Request {
 
 func (c Client) Go() {
 	req := c.newRequest()
-	httpClient := http.Client{}
+	httpClient := http.Client{
+		Timeout: time.Second * 60,
+	}
 	var wg sync.WaitGroup
 
 	Clear()
@@ -66,8 +68,8 @@ func (c Client) Poll(threadID int, r *http.Response) {
 			log.Fatalln(err)
 		}
 
-		var job Payload
-		err = json.NewDecoder(resp.Body).Decode(&job)
+		var message Payload
+		err = json.NewDecoder(resp.Body).Decode(&message)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -75,9 +77,10 @@ func (c Client) Poll(threadID int, r *http.Response) {
 		if err != nil {
 			log.Fatalln(err)
 		}
-		Progress(threadID, fmt.Sprintf("job id: %v status: %v\n", job.ID, job.Status))
-		if job.Status == "complete" {
-			Progress(threadID, fmt.Sprintf("job id: %v status: %v\n", job.ID, job.Status))
+
+		Progress(threadID, message)
+		if message.Status == "complete" {
+			Progress(threadID, message)
 			return
 		}
 	}
