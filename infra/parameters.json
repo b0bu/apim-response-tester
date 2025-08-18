@@ -6,7 +6,7 @@
             "value": "apim-response-tester"
         },
         "endpointFqdn": {
-            "value": "apim-response-tester.dmf6h7gqcrcef7b9.uksouth.azurecontainer.io"
+            "value": ".dmf6h7gqcrcef7b9.uksouth.azurecontainer.io"
         },
         "imageVersion": {
             "value": "v0.0.6"
