@@ -8,16 +8,19 @@ public class MvpForwardBackend : IDocument
 {
     public void Inbound(IInboundContext context)
     {
-        context.SetHeader("operation-location", "@(context.Response.Headers.GetValueOrDefault(\"operation-location\", \"\").Replace(\"apim-response-tester-0.uksouth.azurecontainer.io\", \"https://policy-testing.azure-api.net/api/v1\"))");
+        context.Base();
+        context.SetBackendService(new SetBackendServiceConfig { BackendId = "apim-response-tester" });
     }
 
     public void Backend(IBackendContext context)
     {
-        context.SetBackendService(new SetBackendServiceConfig { BaseUrl = "http://apim-response-tester.dmf6h7gqcrcef7b9.uksouth.azurecontainer.io:8080" });
+        context.ForwardRequest();
     }
 
     public void Outbound(IOutboundContext context)
     {
+        context.Base();
+        context.SetHeader("operation-location", "https://policy-testing.azure-api.net/api/v1");
     }
 
     public void OnError(IOnErrorContext context)

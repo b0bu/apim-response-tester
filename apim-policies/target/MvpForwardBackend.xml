@@ -2,14 +2,18 @@
 <!-- Version: 1.0.0.0 -->
 <policies>
   <inbound>
-    <set-header name="operation-location" exists-action="override">
-      <value>@(context.Response.Headers.GetValueOrDefault("operation-location", "").Replace("apim-response-tester-0.uksouth.azurecontainer.io", "https://policy-testing.azure-api.net/api/v1"))</value>
-    </set-header>
+    <base />
+    <set-backend-service backend-id="apim-response-tester" />
   </inbound>
   <backend>
-    <set-backend-service base-url="http://apim-response-tester.dmf6h7gqcrcef7b9.uksouth.azurecontainer.io:8080" />
+    <forward-request />
   </backend>
-  <outbound />
+  <outbound>
+    <base />
+    <set-header name="operation-location" exists-action="override">
+      <value>https://policy-testing.azure-api.net/api/v1</value>
+    </set-header>
+  </outbound>
   <on-error>
     <base />
     <set-header name="X-Error" exists-action="override">
