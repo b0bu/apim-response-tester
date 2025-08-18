@@ -1,2 +1,16 @@
 bin/
 .token
+
+apim-policies/backup/
+apim-policies/packages/
+apim-policies/bin/
+apim-policies/obj/
+
+# Ignore user-specific and temporary files
+*.user
+*.suo
+*.cache
+*.log
+
+# Ignore Visual Studio folder
+.vs/
