@@ -11,7 +11,10 @@
   <outbound>
     <base />
     <set-header name="operation-location" exists-action="override">
-      <value>https://policy-testing.azure-api.net/api/v1</value>
+      <value>@{
+var match = Regex.Match(context.Response.Headers.GetValueOrDefault("operation-location", ""), @"/job/\d+");
+return "https://policy-testing.azure-api.net/api/v1" + match.Value;
+}</value>
     </set-header>
   </outbound>
   <on-error>
