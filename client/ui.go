@@ -49,9 +49,9 @@ func (c *Cursor) write() {
 	c.positionWriter()
 	switch c.Status {
 	case "pending":
-		fmt.Print("id: " + c.ID + " status: " + Blue + c.Status + Reset)
+		fmt.Print("id: " + c.ID + ", backend: " + c.Backend + ", status: " + Blue + c.Status + Reset + "\r")
 	case "complete":
-		fmt.Print("id: " + c.ID + " status: " + Green + c.Status + Reset)
+		fmt.Print("id: " + c.ID + ", backend: " + c.Backend + ", status: " + Green + c.Status + Reset + "\r")
 	}
 }
 
@@ -83,12 +83,15 @@ func Return() {
 	control(returnCursor)
 }
 
+var termMu sync.Mutex
+
 func Progress(id int, p Payload) {
-	var mu sync.Mutex
+	termMu.Lock()
+	defer termMu.Unlock()
+
 	pos := newCursor(id, p, '.')
-	mu.Lock()
 	pos.write()
-	mu.Unlock()
+
 }
 
 type UIState struct {
