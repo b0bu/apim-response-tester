@@ -4,7 +4,7 @@ bin/
 apim-policies/backup/
 apim-policies/packages/
 apim-policies/bin/
-apim-policies/obj/
+apim-policies/src/obj/
 
 # Ignore user-specific and temporary files
 *.user
