@@ -9,7 +9,7 @@
             "value": ".uksouth.azurecontainer.io"
         },
         "imageVersion": {
-            "value": "v0.0.6"
+            "value": "v0.0.7"
         }
     }
 }
