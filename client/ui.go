@@ -53,15 +53,9 @@ func (c *Cursor) write() {
 	case "complete":
 		fmt.Print("id: " + c.ID + " status: " + Green + c.Status + Reset)
 	}
-	//c.pos(len(c.Msg)) // print after the message
-	//c.pos() // print after the message
-	//fmt.Print(string(c.Style))
-	//c.X++
-	//fmt.Println()
 }
 
 func (c Cursor) positionWriter() {
-	//row := fmt.Appendf([]byte{}, "\033[%v;1H\033[%vC", c.Y, offset+c.X)
 	row := fmt.Appendf([]byte{}, "\033[%v;1H", c.Y)
 	os.Stdout.Write(row)
 }
@@ -78,7 +72,6 @@ func hideCursor(c ANSICodes) {
 
 func returnCursor(c ANSICodes) {
 	os.Stdout.Write(c.HomeCursor)
-	//fmt.Fprintf(os.Stdout, "\033[%vB", state.MaxLines)
 	os.Stdout.Write(c.ShowCursor)
 }
 

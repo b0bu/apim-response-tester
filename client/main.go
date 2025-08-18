@@ -12,9 +12,8 @@ import (
 )
 
 type Client struct {
-	URL     string
+	client  *http.Client
 	Headers map[string]string
-	Method  string
 }
 
 type Payload struct {
@@ -22,8 +21,8 @@ type Payload struct {
 	Status string `json:"status"`
 }
 
-func (c Client) newRequest() *http.Request {
-	req, err := http.NewRequest(c.Method, c.URL, nil)
+func (c Client) newRequest(url string, method string) *http.Request {
+	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -35,17 +34,14 @@ func (c Client) newRequest() *http.Request {
 }
 
 func (c Client) Go() {
-	req := c.newRequest()
-	httpClient := http.Client{
-		Timeout: time.Second * 60,
-	}
+	req := c.newRequest("https://policy-testing.azure-api.net/api/v1/job/create", http.MethodPost)
 	var wg sync.WaitGroup
 
 	Clear()
 
 	for i := 1; i <= state.MaxLines; {
 		wg.Add(1)
-		resp, err := httpClient.Do(req)
+		resp, err := c.client.Do(req)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -63,17 +59,14 @@ func (c Client) Go() {
 
 func (c Client) Poll(threadID int, r *http.Response) {
 	for {
-		resp, err := http.Get(r.Header.Get("Operation-Location"))
+		req := c.newRequest(r.Header.Get("Operation-Location"), http.MethodGet)
+		resp, err := c.client.Do(req)
 		if err != nil {
 			log.Fatalln(err)
 		}
 
 		var message Payload
 		err = json.NewDecoder(resp.Body).Decode(&message)
-		if err != nil {
-			log.Fatalln(err)
-		}
-
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -95,11 +88,12 @@ func getToken() string {
 	return strings.TrimRight(string(bytes), "\n")
 }
 
-func newClient(url, method string) Client {
+func newClient() Client {
 	return Client{
-		url,
+		&http.Client{
+			Timeout: time.Second * 60,
+		},
 		map[string]string{"Ocp-Apim-Subscription-Key": getToken(), "Content-Length": "0"},
-		method,
 	}
 }
 
@@ -110,6 +104,6 @@ func main() {
 	}
 	state.MaxLines = drawlines
 
-	c := newClient("https://policy-testing.azure-api.net/api/v1/job/create", http.MethodPost)
+	c := newClient()
 	c.Go()
 }
