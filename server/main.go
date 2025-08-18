@@ -11,8 +11,9 @@ import (
 )
 
 type Job struct {
-	ID     string `json:"id"`
-	Status string `json:"status"`
+	ID      string `json:"id"`
+	Status  string `json:"status"`
+	Backend string `json:"backend"`
 }
 
 var jobs = []*Job{}
@@ -53,8 +54,11 @@ func work(j *Job) {
 }
 
 func createJob(c *gin.Context) {
+
+	backend := os.Getenv("BACKEND_ID")
+
 	uid := strconv.Itoa(uuid())
-	job := &Job{ID: uid, Status: "pending"}
+	job := &Job{ID: uid, Status: "pending", Backend: backend}
 	jobs = append(jobs, job)
 
 	endpoint := os.Getenv("ENDPOINT_FQDN")
