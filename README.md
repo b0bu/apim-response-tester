@@ -9,3 +9,7 @@ build
 make all VERSION=v0.0.x
 make push VERSION=v0.0.x
 ```
+apim
+```
+azure-apim-policy-compiler --s src/ --o target/
+```
