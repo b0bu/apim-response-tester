@@ -1,0 +1,75 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/jasonleitch.linux/dev/azure/apim/dotnet/PolicySolution/Mvp.Apis.Policies/Mvp.Apis.Policies.csproj": {}
+  },
+  "projects": {
+    "/home/jasonleitch.linux/dev/azure/apim/dotnet/PolicySolution/Mvp.Apis.Policies/Mvp.Apis.Policies.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/jasonleitch.linux/dev/azure/apim/dotnet/PolicySolution/Mvp.Apis.Policies/Mvp.Apis.Policies.csproj",
+        "projectName": "Mvp.Apis.Policies",
+        "projectPath": "/home/jasonleitch.linux/dev/azure/apim/dotnet/PolicySolution/Mvp.Apis.Policies/Mvp.Apis.Policies.csproj",
+        "packagesPath": "/home/jasonleitch.linux/.nuget/packages/",
+        "outputPath": "/home/jasonleitch.linux/dev/azure/apim/dotnet/PolicySolution/Mvp.Apis.Policies/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/jasonleitch.linux/dev/azure/apim/dotnet/PolicySolution/nuget.config",
+          "/home/jasonleitch.linux/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "/home/jasonleitch.linux/dev/azure/apim/dotnet/PolicySolution/packages": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "Microsoft.Azure.ApiManagement.PolicyToolkit.Authoring": {
+              "target": "Package",
+              "version": "[1.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/home/jasonleitch.linux/.dotnet/sdk/9.0.303/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
