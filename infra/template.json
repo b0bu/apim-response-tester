@@ -51,6 +51,10 @@
                                 {
                                     "name": "ENDPOINT_FQDN",
                                     "value": "[format('{0}-{1}{2}', parameters('containerGroups_apim_response_tester_name'), copyIndex(), parameters('endpointFqdn'))]"
+                                },
+                                {
+                                    "name": "BACKEND_ID",
+                                    "value": "[format('backend-{0}', copyIndex())]"
                                 }
                             ],
                             "resources": {
