@@ -33,16 +33,17 @@ public class MvpForwardBackend : IDocument
     {
         context.Base();
 
-        context.CacheLookupValue(new CacheLookupValueConfig {
-            Key = JobId(context.ExpressionContext),
-            VariableName = "cachedResponse",
-            CachingType = "internal"
-        });
 
         context.SetBackendService(new SetBackendServiceConfig { BackendId = "apim-rt-pool" });
 
         if (IsGet(context.ExpressionContext))
         {
+            // only lookup on GET
+            context.CacheLookupValue(new CacheLookupValueConfig {
+                Key = JobId(context.ExpressionContext),
+                VariableName = "cachedResponse",
+                CachingType = "internal"
+            });
             if (HasCachedResponse(context.ExpressionContext))
             {
                 context.SetBackendService(new SetBackendServiceConfig {
