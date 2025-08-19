@@ -8,7 +8,7 @@ namespace Mvp.Apis.Policies;
 public class MvpForwardBackend : IDocument
 {
     private static string IdFromUrl(IExpressionContext context) =>
-        Regex.Match(context.Request.OriginalUrl.ToString(), @"/job/\d+").Value;
+        Regex.Match(context.Request.OriginalUrl.ToString(), @"/job/(\d+)").Groups[1].Value;
 
     // get header, get value, get job id
     private static string IdFromHeader(IExpressionContext context) =>

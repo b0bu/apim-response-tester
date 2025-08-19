@@ -6,7 +6,7 @@
     <set-backend-service backend-id="apim-rt-pool" />
     <choose>
       <when condition="@(context.Request.Method.Equals("GET"))">
-        <cache-lookup-value key="@(Regex.Match(context.Request.OriginalUrl.ToString(), @"/job/\d+").Value)" variable-name="cachedResponse" caching-type="internal" />
+        <cache-lookup-value key="@(Regex.Match(context.Request.OriginalUrl.ToString(), @"/job/(\d+)").Groups[1].Value)" variable-name="cachedResponse" caching-type="internal" />
         <choose>
           <when condition="@(context.Variables.ContainsKey("cachedResponse"))">
             <set-backend-service base-url="@((string)context.Variables["cachedResponse"])" />
