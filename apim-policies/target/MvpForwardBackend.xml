@@ -22,18 +22,32 @@
   </backend>
   <outbound>
     <base />
-    <cache-store-value key="@(Regex.Match(context.Response.Headers.GetValueOrDefault("operation-location", ""), @"/job/(\d+)", RegexOptions.IgnoreCase).Groups[1].Value)" value="@{
+    <choose>
+      <when condition="@(!context.Request.Method.Equals("GET"))">
+        <cache-store-value key="@(Regex.Match(context.Response.Headers.GetValueOrDefault("operation-location", ""), @"/job/(\d+)", RegexOptions.IgnoreCase).Groups[1].Value)" value="@{
 var opLoc = context.Response.Headers.GetValueOrDefault("operation-location", "");
 return Regex.Replace(opLoc, @"/job/\d+.*$", string.Empty, RegexOptions.IgnoreCase);
-}" duration="600" caching-type="internal" />
+}" duration="1200" caching-type="internal" />
+      </when>
+    </choose>
     <set-header name="operation-location" exists-action="override">
-      <value>@(string.Concat("https://policy-testing.azure-api.net/api/v1", Regex.Match(context.Response.Headers.GetValueOrDefault("operation-location", ""), @"/job/\d+").Value))</value>
+      <value>@{
+var op = context.Response.Headers.GetValueOrDefault("operation-location", "");
+if (!string.IsNullOrEmpty(op))
+{
+    return string.Concat("https://policy-testing.azure-api.net/api/v1", Regex.Match(op, @"/job/\d+").Value);
+}
+else
+{
+    return string.Concat("https://policy-testing.azure-api.net/api/v1/job/", (string)context.Variables["cachedResponse"]);
+}
+}</value>
     </set-header>
   </outbound>
   <on-error>
     <base />
     <set-header name="X-Error" exists-action="override">
-      <value>An error occurred in the API pipeline.</value>
+      <value>An error occurred in the API pipeline TRACE for more information</value>
     </set-header>
   </on-error>
 </policies>

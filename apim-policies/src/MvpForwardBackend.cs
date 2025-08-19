@@ -16,6 +16,10 @@ public class MvpForwardBackend : IDocument
 
     private static bool IsGet(IExpressionContext context) =>
         context.Request.Method.Equals("GET");
+    
+    // ensure it's anything but a GET
+    private static bool ShouldCache(IExpressionContext context) =>
+        !context.Request.Method.Equals("GET");
 
     private static bool HasCachedResponse(IExpressionContext context) =>
         context.Variables.ContainsKey("cachedResponse");
@@ -23,18 +27,28 @@ public class MvpForwardBackend : IDocument
     private static string CachedResponseBaseUrl(IExpressionContext context) =>
         (string)context.Variables["cachedResponse"];
 
-    private static string OperationLocationAbsolute(IExpressionContext context) =>
-        string.Concat("https://policy-testing.azure-api.net/api/v1",
-            Regex.Match(
-                context.Response.Headers.GetValueOrDefault("operation-location", ""),
-                @"/job/\d+").Value);
+    //  this sets oploc based on oploc which doesn't exist
+    //  job and id need to be concat 
+    //  nothing has been cached yet so can't look up the var
+    private static string OperationLocationAbsolute(IExpressionContext context) {
+        // on get op location header isn't present, so fall back to check cache
+        var op = context.Response.Headers.GetValueOrDefault("operation-location", "");
+        if (!string.IsNullOrEmpty(op))
+        {
+            return string.Concat("https://policy-testing.azure-api.net/api/v1",
+                    Regex.Match(op, @"/job/\d+").Value);
+        } else
+        {
+            return string.Concat("https://policy-testing.azure-api.net/api/v1/job/",
+                    (string)context.Variables["cachedResponse"]);
+        }
+    }
 
     private static string OpLocRequestUrl(IExpressionContext context) {
         var opLoc = context.Response.Headers.GetValueOrDefault("operation-location", "");
         return Regex.Replace(opLoc, @"/job/\d+.*$", string.Empty, RegexOptions.IgnoreCase);
     }
 
-    // ---------- Sections ----------
     public void Inbound(IInboundContext context)
     {
         context.Base();
@@ -65,23 +79,27 @@ public class MvpForwardBackend : IDocument
     public void Outbound(IOutboundContext context)
     {
         context.Base();
-
-        // check if in cache first
         
-        context.CacheStoreValue(new CacheStoreValueConfig {
-            Key = IdFromHeader(context.ExpressionContext),
-            Value = OpLocRequestUrl(context.ExpressionContext),
-            Duration = 600,
-            CachingType = "internal"
-        });
+        //TODO: need to capture id here from server
+            
+        if (ShouldCache(context.ExpressionContext)) {
+            //TODO: check if in cache first
+            context.CacheStoreValue(new CacheStoreValueConfig {
+                Key = IdFromHeader(context.ExpressionContext),
+                Value = OpLocRequestUrl(context.ExpressionContext),
+                Duration = 1200,
+                CachingType = "internal"
+            });
+        }
 
         context.SetHeader("operation-location", OperationLocationAbsolute(context.ExpressionContext));
+
     }
 
     public void OnError(IOnErrorContext context)
     {
         context.Base();
-        context.SetHeader("X-Error", "An error occurred in the API pipeline.");
+        context.SetHeader("X-Error", "An error occurred in the API pipeline TRACE for more information");
     }
 }
 
