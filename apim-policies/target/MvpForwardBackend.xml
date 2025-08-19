@@ -3,7 +3,12 @@
 <policies>
   <inbound>
     <base />
-    <set-backend-service backend-id="apim-response-tester" />
+    <cache-lookup-value key="@(JobID(context.Request.OriginalUrl.ToString()))" variable-name="cachedResponse" caching-type="internal" />
+    <choose>
+      <otherwise>
+        <set-backend-service backend-id="apim-rt-pool" />
+      </otherwise>
+    </choose>
   </inbound>
   <backend>
     <forward-request />

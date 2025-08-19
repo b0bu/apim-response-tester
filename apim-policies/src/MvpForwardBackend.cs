@@ -8,14 +8,30 @@ namespace Mvp.Apis.Policies;
 public class MvpForwardBackend : IDocument
 {
     // used on /GET to parse out id finds 'job' gets id
-    [Expression]
-    private static string JobID(IExpressionContext ctx)
-        => Regex.Match(ctx.Request.OriginalUrl.ToString(), @"/job/\d+").Value;
+    private static string JobID(string url)
+        => Regex.Match(url, @"/job/\d+").Value;
+
+    private static string ExtractJobId(IExpressionContext context) 
+        => JobID(context.Request.OriginalUrl.ToString());
+
+    private static string ExtractRequestMethod(IExpressionContext context)
+        => context.Request.Method;
+
+    private static string CachedResponse(IExpressionContext context, string key)
+        => context.Variables[key].ToString();
 
     public void Inbound(IInboundContext context)
     {
         context.Base();
-        context.SetBackendService(new SetBackendServiceConfig { BackendId = "apim-response-tester" });
+        // inbound context has no property Request
+        context.CacheLookupValue(new CacheLookupValueConfig { Key = ExtractJobId(context.ExpressionContext),  VariableName = "cachedResponse", CachingType = "internal" });
+
+        // if GET and cached use it, else balance
+        if (ExtractRequestMethod(context.ExpressionContext) == "GET" && CachedResponse(context.ExpressionContext, "cachedResponse") is not null) {
+            context.SetBackendService(new SetBackendServiceConfig { BaseUrl = CachedResponse(context.ExpressionContext, "cachedResponse") });
+        } else {
+            context.SetBackendService(new SetBackendServiceConfig { BackendId = "apim-rt-pool" });
+        }
     }
 
     public void Backend(IBackendContext context)
@@ -30,9 +46,17 @@ public class MvpForwardBackend : IDocument
         return "https://policy-testing.azure-api.net/api/v1" + match.Value;
     }
 
+    private static void CacheJob(IOutboundContext context, IExpressionContext ctx) {
+        var backend_id = ctx.Request.OriginalUrl.ToString();
+        var job_id = JobID(ctx.Request.OriginalUrl.ToString());
+        // not production caching type
+        context.CacheStoreValue(new CacheStoreValueConfig { Key = job_id, Value = backend_id, Duration = 600, CachingType = "internal" }); 
+    }
+
     public void Outbound(IOutboundContext context)
     {
         context.Base();
+        CacheJob(context, context.ExpressionContext);
         context.SetHeader("operation-location", NormalizeHeader(context.ExpressionContext));
     }
 
