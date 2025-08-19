@@ -16,7 +16,7 @@ public class MvpForwardBackend : IDocument
 
     private static bool IsGet(IExpressionContext context) =>
         context.Request.Method.Equals("GET");
-    
+
     // ensure it's anything but a GET
     private static bool ShouldCache(IExpressionContext context) =>
         !context.Request.Method.Equals("GET");
@@ -43,7 +43,7 @@ public class MvpForwardBackend : IDocument
         {
             // when GET original url has the id in the url
             return string.Concat("https://policy-testing.azure-api.net/api/v1/job/",
-                    (string)context.Variables["cachedResponse"]);
+                Regex.Match(context.Request.OriginalUrl.ToString(), @"/job/(\d+)").Groups[1].Value);
         }
     }
 

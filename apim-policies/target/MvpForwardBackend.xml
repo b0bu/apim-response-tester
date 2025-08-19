@@ -39,7 +39,7 @@ if (!string.IsNullOrEmpty(op))
 }
 else
 {
-    return string.Concat("https://policy-testing.azure-api.net/api/v1/job/", (string)context.Variables["cachedResponse"]);
+    return string.Concat("https://policy-testing.azure-api.net/api/v1/job/", Regex.Match(context.Request.OriginalUrl.ToString(), @"/job/(\d+)").Groups[1].Value);
 }
 }</value>
     </set-header>
