@@ -29,8 +29,10 @@ public class MvpForwardBackend : IDocument
                 context.Response.Headers.GetValueOrDefault("operation-location", ""),
                 @"/job/\d+").Value);
 
-    private static string CurrentRequestUrl(IExpressionContext context) =>
-        context.Response.Headers.GetValueOrDefault("operation-location", "");
+    private static string OpLocRequestUrl(IExpressionContext context) {
+        var opLoc = context.Response.Headers.GetValueOrDefault("operation-location", "");
+        return Regex.Replace(opLoc, @"/job/\d+.*$", string.Empty, RegexOptions.IgnoreCase);
+    }
 
     // ---------- Sections ----------
     public void Inbound(IInboundContext context)
@@ -68,7 +70,7 @@ public class MvpForwardBackend : IDocument
         
         context.CacheStoreValue(new CacheStoreValueConfig {
             Key = IdFromHeader(context.ExpressionContext),
-            Value = CurrentRequestUrl(context.ExpressionContext),
+            Value = OpLocRequestUrl(context.ExpressionContext),
             Duration = 600,
             CachingType = "internal"
         });
