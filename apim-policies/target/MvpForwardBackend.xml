@@ -20,7 +20,7 @@
   </backend>
   <outbound>
     <base />
-    <cache-store-value key="@(Regex.Match(context.Request.OriginalUrl.ToString(), @"/job/\d+").Value)" value="@(context.Request.OriginalUrl.ToString())" duration="600" caching-type="internal" />
+    <cache-store-value key="@(Regex.Match(context.Response.Headers.GetValueOrDefault("operation-location", ""), @"/job/(\d+)", RegexOptions.IgnoreCase).Groups[1].Value)" value="@(context.Response.Headers.GetValueOrDefault("operation-location", ""))" duration="600" caching-type="internal" />
     <set-header name="operation-location" exists-action="override">
       <value>@(string.Concat("https://policy-testing.azure-api.net/api/v1", Regex.Match(context.Response.Headers.GetValueOrDefault("operation-location", ""), @"/job/\d+").Value))</value>
     </set-header>

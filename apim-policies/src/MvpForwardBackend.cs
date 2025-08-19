@@ -7,8 +7,12 @@ namespace Mvp.Apis.Policies;
 [Document]
 public class MvpForwardBackend : IDocument
 {
-    private static string JobId(IExpressionContext context) =>
-        Regex.Match(context.Request.OriginalUrl.ToString(), @"/job/\d+").Value; // Regex.Match is allowed in APIM expressions
+    private static string IdFromUrl(IExpressionContext context) =>
+        Regex.Match(context.Request.OriginalUrl.ToString(), @"/job/\d+").Value;
+
+    // get header, get value, get job id
+    private static string IdFromHeader(IExpressionContext context) =>
+        Regex.Match(context.Response.Headers.GetValueOrDefault("operation-location", ""), @"/job/(\d+)", RegexOptions.IgnoreCase).Groups[1].Value;
 
     private static bool IsGet(IExpressionContext context) =>
         context.Request.Method.Equals("GET");
@@ -26,7 +30,7 @@ public class MvpForwardBackend : IDocument
                 @"/job/\d+").Value);
 
     private static string CurrentRequestUrl(IExpressionContext context) =>
-        context.Request.OriginalUrl.ToString();
+        context.Response.Headers.GetValueOrDefault("operation-location", "");
 
     // ---------- Sections ----------
     public void Inbound(IInboundContext context)
@@ -40,7 +44,7 @@ public class MvpForwardBackend : IDocument
         {
             // only lookup on GET
             context.CacheLookupValue(new CacheLookupValueConfig {
-                Key = JobId(context.ExpressionContext),
+                Key = IdFromUrl(context.ExpressionContext),
                 VariableName = "cachedResponse",
                 CachingType = "internal"
             });
@@ -61,8 +65,10 @@ public class MvpForwardBackend : IDocument
     {
         context.Base();
 
+        // check if in cache first
+        
         context.CacheStoreValue(new CacheStoreValueConfig {
-            Key = JobId(context.ExpressionContext),
+            Key = IdFromHeader(context.ExpressionContext),
             Value = CurrentRequestUrl(context.ExpressionContext),
             Duration = 600,
             CachingType = "internal"
