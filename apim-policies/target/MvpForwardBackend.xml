@@ -3,23 +3,28 @@
 <policies>
   <inbound>
     <base />
-    <cache-lookup-value key="@(JobID(context.Request.OriginalUrl.ToString()))" variable-name="cachedResponse" caching-type="internal" />
+    <cache-lookup-value key="@(Regex.Match(context.Request.OriginalUrl.ToString(), @"/job/\d+").Value)" variable-name="cachedResponse" caching-type="internal" />
     <choose>
+      <when condition="@(context.Request.Method.Equals("GET"))">
+        <choose>
+          <when condition="@(context.Variables.ContainsKey("cachedResponse"))">
+            <set-backend-service base-url="@((string)context.Variables["cachedResponse"])" />
+          </when>
+          <otherwise>
+            <set-backend-service backend-id="apim-rt-pool" />
+          </otherwise>
+        </choose>
+      </when>
       <otherwise>
         <set-backend-service backend-id="apim-rt-pool" />
       </otherwise>
     </choose>
   </inbound>
-  <backend>
-    <forward-request />
-  </backend>
   <outbound>
     <base />
+    <cache-store-value key="@(Regex.Match(context.Request.OriginalUrl.ToString(), @"/job/\d+").Value)" value="@(context.Request.OriginalUrl.ToString())" duration="600" caching-type="internal" />
     <set-header name="operation-location" exists-action="override">
-      <value>@{
-var match = Regex.Match(context.Response.Headers.GetValueOrDefault("operation-location", ""), @"/job/\d+");
-return "https://policy-testing.azure-api.net/api/v1" + match.Value;
-}</value>
+      <value>@(string.Concat("https://policy-testing.azure-api.net/api/v1", Regex.Match(context.Response.Headers.GetValueOrDefault("operation-location", ""), @"/job/\d+").Value))</value>
     </set-header>
   </outbound>
   <on-error>
