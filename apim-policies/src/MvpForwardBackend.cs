@@ -37,9 +37,6 @@ public class MvpForwardBackend : IDocument
     {
         context.Base();
 
-
-        context.SetBackendService(new SetBackendServiceConfig { BackendId = "apim-rt-pool" });
-
         if (IsGet(context.ExpressionContext))
         {
             // only lookup on GET
@@ -54,6 +51,8 @@ public class MvpForwardBackend : IDocument
                     BaseUrl = CachedResponseBaseUrl(context.ExpressionContext)
                 });
             }
+        } else {
+            context.SetBackendService(new SetBackendServiceConfig { BackendId = "apim-rt-pool" });
         }
     }
 
