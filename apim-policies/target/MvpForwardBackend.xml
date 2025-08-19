@@ -4,22 +4,20 @@
   <inbound>
     <base />
     <cache-lookup-value key="@(Regex.Match(context.Request.OriginalUrl.ToString(), @"/job/\d+").Value)" variable-name="cachedResponse" caching-type="internal" />
+    <set-backend-service backend-id="apim-rt-pool" />
     <choose>
       <when condition="@(context.Request.Method.Equals("GET"))">
         <choose>
           <when condition="@(context.Variables.ContainsKey("cachedResponse"))">
             <set-backend-service base-url="@((string)context.Variables["cachedResponse"])" />
           </when>
-          <otherwise>
-            <set-backend-service backend-id="apim-rt-pool" />
-          </otherwise>
         </choose>
       </when>
-      <otherwise>
-        <set-backend-service backend-id="apim-rt-pool" />
-      </otherwise>
     </choose>
   </inbound>
+  <backend>
+    <forward-request />
+  </backend>
   <outbound>
     <base />
     <cache-store-value key="@(Regex.Match(context.Request.OriginalUrl.ToString(), @"/job/\d+").Value)" value="@(context.Request.OriginalUrl.ToString())" duration="600" caching-type="internal" />

@@ -39,6 +39,8 @@ public class MvpForwardBackend : IDocument
             CachingType = "internal"
         });
 
+        context.SetBackendService(new SetBackendServiceConfig { BackendId = "apim-rt-pool" });
+
         if (IsGet(context.ExpressionContext))
         {
             if (HasCachedResponse(context.ExpressionContext))
@@ -47,18 +49,12 @@ public class MvpForwardBackend : IDocument
                     BaseUrl = CachedResponseBaseUrl(context.ExpressionContext)
                 });
             }
-            else
-            {
-                context.SetBackendService(new SetBackendServiceConfig { BackendId = "apim-rt-pool" });
-            }
-        }
-        else
-        {
-            context.SetBackendService(new SetBackendServiceConfig { BackendId = "apim-rt-pool" });
         }
     }
 
-    public void Backend(IBackendContext context) => context.ForwardRequest();
+    public void Backend(IBackendContext context) {
+        context.ForwardRequest();
+    }
 
     public void Outbound(IOutboundContext context)
     {

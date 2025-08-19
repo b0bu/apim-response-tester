@@ -1,5 +1,6 @@
 bin/
 .token
+.env
 
 apim-policies/backup/
 apim-policies/packages/
